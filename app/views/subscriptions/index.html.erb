@@ -1,0 +1,74 @@
+<% if current_user.subscription.present? %>
+  <div class="container my-5">
+    <div class="row">
+      <div class="col-md-12 mt-3 text-center">
+        <p>STRIPE SUBSCRIPTION ID: <code><%= current_user.subscription.stripe_id %></code></p>
+      </div>
+    </div>
+  </div>
+<% else %>
+  <div class="container my-5">
+    <div class="row">
+      <div class="col-md-12 mt-3 text-center">
+        <h3>Now you need to choose your plan</h3>
+      </div>
+    </div>
+    <div class="row justify-content-md-center">
+      <%= form_with(model: @subscription, class: "shadow p-3 mb-3 rounded", local: true) do |form| %>
+        <%= form.hidden_field :user_id, value: current_user.id  %>
+        <div class="row">
+          <div class="col-md-2"></div>
+          <div class="col-md-8 text-center">
+            <div class="form-group row my-2">
+              <%= form.label :card_number, class: "col-4 col-form-label text-dark" %>
+              <div class="col-8">
+                <%= form.number_field :card_number, class: "form-control shadow rounded", placeholder: "Enter Card Number", required: true%>
+              </div>
+            </div>
+
+            <div class="form-group row my-2">
+              <%= form.label :plan_id, class: "col-4 col-form-label text-dark" %>
+              <div class="col-8">
+                <select class="form-control" name="subscription[plan_id]" required="required">
+                  <option>Select Plan</option>
+                  <% @plans.each do |plan| %>
+                    <option value="<%= plan.id %>"><%= number_to_currency(plan.price_cents / 100, :unit => "$", precision: 2) %>/ <%= plan.name %></option>
+                  <%end%>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group row my-2">
+              <%= form.label :exp_month, class: "col-4 col-form-label text-dark" %>
+              <div class="col-8">
+                <%= form.select :exp_month, ['01','02','03','04','05','06','07','08','09','10','11','12'], {include_blank: "Select Month"}, class: "form-control shadow rounded", required: true%>
+              </div>
+            </div>
+
+            <div class="form-group row my-2">
+              <%= form.label :exp_year, class: "col-4 col-form-label text-dark" %>
+              <div class="col-8">
+                <%= form.select :exp_year, Date.today.year.. 18.years.from_now.year, {include_blank: "Select Year"}, class: "form-control shadow rounded", required: true%>
+              </div>
+            </div>
+
+            <div class="form-group row my-2">
+              <%= form.label :cvc, class: "col-4 col-form-label text-dark" %>
+              <div class="col-8">
+                <%= form.number_field :cvc, class: "form-control shadow rounded", placeholder: "Enter CVC", required: true%>
+              </div>
+            </div>
+
+
+          </div>
+          <div class="col-md-2"></div>
+        </div>
+        <div class="row">
+          <div class="col-md-12 mt-2 text-center">
+            <%= submit_tag 'Save changes', class: "btn btn-primary" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>
